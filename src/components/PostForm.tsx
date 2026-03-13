@@ -60,27 +60,23 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
 
     try {
-      const response = await fetch(
-        `https://quxnygeglmdrzukqpmqg.supabase.co/functions/v1/generate-post`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            theme: topic,
-            tone: finalTone,
-            targetAudience: audience || 'público geral',
-            postSize: size,
-            socialNetworks: networks,
-          }),
-        }
-      );
+      const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
+        body: {
+          theme: topic,
+          tone: finalTone,
+          targetAudience: audience || 'público geral',
+          postSize: size,
+          socialNetworks: networks,
+        },
+      });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Erro ao gerar post');
+      if (fnError) {
+        throw new Error(fnError.message || 'Erro ao gerar post');
       }
 
-      const result = await response.json();
+      if (result?.error) {
+        throw new Error(result.error);
+      }
 
       const post: GeneratedPost = {
         id: crypto.randomUUID(),
