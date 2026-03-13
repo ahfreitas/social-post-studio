@@ -7,8 +7,13 @@ import type { GeneratedPost } from '@/types/post';
 export default function PostResult({ post }: { post: GeneratedPost }) {
   const [copied, setCopied] = useState(false);
 
+  const fullContent = [
+    post.content,
+    post.hashtags?.length ? '\n\n' + post.hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ') : '',
+  ].join('');
+
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(post.content);
+    await navigator.clipboard.writeText(fullContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -21,11 +26,42 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
           {copied ? <><Check className="mr-1 h-4 w-4" /> Copiado</> : <><Copy className="mr-1 h-4 w-4" /> Copiar</>}
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <div className="rounded-lg bg-secondary p-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
           {post.content}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+
+        {post.hashtags?.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {post.hashtags.map((tag, i) => (
+              <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                {tag.startsWith('#') ? tag : `#${tag}`}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {post.trends?.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1">📈 Tendências</p>
+            <div className="flex flex-wrap gap-2">
+              {post.trends.map((t, i) => (
+                <span key={i} className="rounded-md bg-accent px-2 py-1 text-xs text-accent-foreground">{t}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {post.sources?.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1">📚 Fontes</p>
+            <ul className="list-disc list-inside text-xs text-muted-foreground space-y-0.5">
+              {post.sources.map((s, i) => <li key={i}>{s}</li>)}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2">
           {post.networks.map(n => (
             <span key={n} className="rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary capitalize">
               {n}
