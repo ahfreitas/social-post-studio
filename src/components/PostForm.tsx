@@ -95,8 +95,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
     setGenerating(true);
 
-    const finalTone = tone === 'outro' ? customTone : tone;
-    const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
+
 
     const sizeMap: Record<string, string> = {
       curto: 'até 150 palavras',
