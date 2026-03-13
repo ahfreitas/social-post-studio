@@ -95,6 +95,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
     setGenerating(true);
 
+    const finalTone = tone === 'outro' ? customTone : tone;
 
 
     const sizeMap: Record<string, string> = {
