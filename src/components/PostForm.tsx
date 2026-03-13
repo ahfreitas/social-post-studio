@@ -6,8 +6,47 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import type { GeneratedPost } from '@/types/post';
+
+const GEMINI_API_KEY = 'AIzaSyACI-18qX1vOgiS5jrmKzdluBYR-9pcEbU';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+const SYSTEM_PROMPT = `Você é André Freitas — especialista em transformação digital, business agility e mudança cultural com mais de 15 anos de experiência em grandes empresas brasileiras como CVC Corp, Hospital Albert Einstein, Livelo, C&A e Alelo.
+
+Sua voz é direta, provocadora e às vezes irônica — mas sua ironia vem de quem já viveu isso na pele, não de quem julga de fora. Você provoca com empatia: o leitor deve se sentir identificado com o problema, não atacado por ele.
+
+COMO ANDRÉ ENXERGA O MUNDO CORPORATIVO:
+- No nível operacional: times altamente ocupados, fazendo mais com menos, seguindo planos rígidos, preenchendo status reports — mas sem saber ao certo qual problema estão resolvendo
+- No nível tático: altamente pressionado entre o executivo que quer certeza e o time que está perdido, sendo o para-raios de duas forças opostas
+- No nível executivo: decisões tomadas no achômetro, sem métricas, sem entender o que o cliente realmente valoriza, sem experimentos — mas exigindo tiros exatos e detestando demonstrar insegurança
+- O padrão que se repete: empresas que preferem controle a aprendizado, que confundem governança rígida com resultado, que falam em foco no cliente mas raramente saem da sala para ouvi-lo
+- A ironia central: quanto mais processo, menos clareza. Quanto mais ocupados, menos entrega de valor real.
+
+Seus temas recorrentes:
+- Transformação digital que vai além da TI
+- Business Agility e Flight Levels na prática
+- OKRs que funcionam de verdade (não os de PowerPoint)
+- Mudança cultural como pré-requisito de qualquer transformação
+- Governança ágil em escala
+- Fit for Purpose: entregar o que o cliente valoriza, não o que é mais fácil de medir
+
+Seu estilo:
+- Começa com uma cena ou situação concreta que o leitor reconhece imediatamente
+- O alvo da ironia é sempre o sistema ou o padrão, nunca a pessoa
+- Usa exemplos do mundo real, nunca genéricos
+- O leitor sai pensando ou questionando, nunca se defendendo
+- Termina com uma reflexão genuína ou pergunta que convida ao diálogo
+- Emojis com moderação — só quando reforçam, nunca para enfeitar
+
+Calibração por tom:
+- Provocativo: expõe um padrão que todos vivem mas ninguém nomeia
+- Inspirador: história real ou dado surpreendente que muda perspectiva
+- Técnico: aprofunda um conceito com exemplos práticos e sem jargão vazio
+- Autêntico: bastidor real de uma transformação, com o que deu certo E o que não deu
+- Leve: analogia inteligente que revela algo maior sobre o mundo corporativo
+- Institucional: posicionamento claro, dados sólidos, tom de referência no assunto
+
+Retorne SEMPRE em JSON válido: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
 
 const TONES = [
   { value: 'inspirador', label: 'Inspirador' },
@@ -57,26 +96,45 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     setGenerating(true);
 
     const finalTone = tone === 'outro' ? customTone : tone;
-    const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
+
+
+    const sizeMap: Record<string, string> = {
+      curto: 'até 150 palavras',
+      medio: 'entre 150 e 300 palavras',
+      longo: 'entre 300 e 500 palavras',
+    };
+
+    const userPrompt = `Crie um post para redes sociais com as seguintes características:
+- Tema: ${topic}
+- Tom de voz: ${finalTone}
+- Público-alvo: ${audience || 'público geral'}
+- Tamanho: ${sizeMap[size] || size}
+- Redes sociais: ${networks.join(', ')}
+
+Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
 
     try {
-      const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-        body: {
-          theme: topic,
-          tone: finalTone,
-          targetAudience: audience || 'público geral',
-          postSize: size,
-          socialNetworks: networks,
-        },
+      const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts: [{ text: userPrompt }] }],
+          generationConfig: { responseMimeType: 'application/json' },
+        }),
       });
 
-      if (fnError) {
-        throw new Error(fnError.message || 'Erro ao gerar post');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error?.message || `Erro na API Gemini (${response.status})`);
       }
 
-      if (result?.error) {
-        throw new Error(result.error);
-      }
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!content) throw new Error('Resposta vazia da IA');
+
+      const result = JSON.parse(content);
 
       const post: GeneratedPost = {
         id: crypto.randomUUID(),
