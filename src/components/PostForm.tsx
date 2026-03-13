@@ -9,7 +9,7 @@ import { Sparkles, Loader2 } from 'lucide-react';
 import type { GeneratedPost } from '@/types/post';
 
 const GEMINI_API_KEY = 'AIzaSyACI-18qX1vOgiS5jrmKzdluBYR-9pcEbU';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-001:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `Você é André Freitas — especialista em transformação digital, business agility e mudança cultural com mais de 15 anos de experiência em grandes empresas brasileiras como CVC Corp, Hospital Albert Einstein, Livelo, C&A e Alelo.
 
@@ -118,7 +118,9 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: SYSTEM_PROMPT + '\n\n' + userPrompt }] }],
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts: [{ text: userPrompt }] }],
+          generationConfig: { responseMimeType: 'application/json' },
         }),
       });
 
