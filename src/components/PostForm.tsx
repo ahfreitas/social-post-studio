@@ -1,0 +1,186 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Sparkles, Loader2 } from 'lucide-react';
+import type { GeneratedPost } from '@/types/post';
+
+const TONES = [
+  { value: 'inspirador', label: 'Inspirador' },
+  { value: 'tecnico', label: 'Técnico' },
+  { value: 'provocativo', label: 'Provocativo' },
+  { value: 'leve', label: 'Leve' },
+  { value: 'institucional', label: 'Institucional' },
+  { value: 'autentico', label: 'Autêntico' },
+  { value: 'outro', label: 'Outro' },
+];
+
+const SIZES = [
+  { value: 'curto', label: 'Curto (até 150 palavras)' },
+  { value: 'medio', label: 'Médio (150-300 palavras)' },
+  { value: 'longo', label: 'Longo (300-500 palavras)' },
+];
+
+const NETWORKS = [
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'tiktok', label: 'TikTok' },
+  { id: 'twitter', label: 'Twitter/X' },
+];
+
+interface PostFormProps {
+  onGenerate: (post: GeneratedPost) => void;
+}
+
+export default function PostForm({ onGenerate }: PostFormProps) {
+  const [topic, setTopic] = useState('');
+  const [tone, setTone] = useState('');
+  const [customTone, setCustomTone] = useState('');
+  const [audience, setAudience] = useState('');
+  const [size, setSize] = useState('');
+  const [networks, setNetworks] = useState<string[]>([]);
+  const [generating, setGenerating] = useState(false);
+
+  const toggleNetwork = (id: string) => {
+    setNetworks(prev => prev.includes(id) ? prev.filter(n => n !== id) : [...prev, id]);
+  };
+
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic || !tone || !size || networks.length === 0) return;
+
+    setGenerating(true);
+
+    const finalTone = tone === 'outro' ? customTone : tone;
+    const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
+
+    // Simulated generation (replace with AI API call)
+    await new Promise(r => setTimeout(r, 1500));
+
+    const mockContent = `📢 ${topic.toUpperCase()}\n\n` +
+      `Este é um post gerado com tom ${finalTone} para ${audience || 'público geral'}.\n\n` +
+      `O conteúdo foi otimizado para ${networks.join(', ')} com até ${sizeMap[size]} palavras.\n\n` +
+      `💡 Dica: Conecte uma API de IA para gerar conteúdo real e personalizado!\n\n` +
+      `#${topic.replace(/\s+/g, '')} #RedesSociais #ContentMarketing`;
+
+    const post: GeneratedPost = {
+      id: crypto.randomUUID(),
+      topic,
+      tone: finalTone,
+      audience: audience || 'Público geral',
+      size,
+      networks,
+      content: mockContent,
+      createdAt: new Date().toISOString(),
+    };
+
+    onGenerate(post);
+    setGenerating(false);
+  };
+
+  return (
+    <form onSubmit={handleGenerate} className="space-y-5">
+      <div className="space-y-2">
+        <Label htmlFor="topic">Tema ou assunto do post</Label>
+        <Textarea
+          id="topic"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="Ex: Produtividade no trabalho remoto"
+          className="bg-secondary border-border min-h-[80px] resize-none"
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Tom de voz</Label>
+          <Select value={tone} onValueChange={setTone} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o tom" />
+            </SelectTrigger>
+            <SelectContent>
+              {TONES.map(t => (
+                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {tone === 'outro' && (
+            <Input
+              value={customTone}
+              onChange={(e) => setCustomTone(e.target.value)}
+              placeholder="Descreva o tom desejado"
+              className="bg-secondary border-border mt-2"
+              required
+            />
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tamanho</Label>
+          <Select value={size} onValueChange={setSize} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o tamanho" />
+            </SelectTrigger>
+            <SelectContent>
+              {SIZES.map(s => (
+                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="audience">Público-alvo (opcional)</Label>
+        <Input
+          id="audience"
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
+          placeholder="Ex: Empreendedores, 25-40 anos"
+          className="bg-secondary border-border"
+        />
+      </div>
+
+      <div className="space-y-3">
+        <Label>Redes sociais</Label>
+        <div className="flex flex-wrap gap-3">
+          {NETWORKS.map(net => (
+            <label
+              key={net.id}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer transition-all ${
+                networks.includes(net.id)
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-secondary text-muted-foreground hover:border-muted-foreground'
+              }`}
+            >
+              <Checkbox
+                checked={networks.includes(net.id)}
+                onCheckedChange={() => toggleNetwork(net.id)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <span className="text-sm font-medium">{net.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full font-display text-base"
+        disabled={generating || !topic || !tone || !size || networks.length === 0}
+      >
+        {generating ? (
+          <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Gerando...</>
+        ) : (
+          <><Sparkles className="mr-2 h-5 w-5" /> Gerar Post</>
+        )}
+      </Button>
+    </form>
+  );
+}
