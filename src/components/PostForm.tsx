@@ -9,7 +9,7 @@ import { Sparkles, Loader2 } from 'lucide-react';
 import type { GeneratedPost } from '@/types/post';
 
 const GEMINI_API_KEY = 'AIzaSyACI-18qX1vOgiS5jrmKzdluBYR-9pcEbU';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `Você é André Freitas — especialista em transformação digital, business agility e mudança cultural com mais de 15 anos de experiência em grandes empresas brasileiras como CVC Corp, Hospital Albert Einstein, Livelo, C&A e Alelo.
 
