@@ -98,24 +98,43 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     const finalTone = tone === 'outro' ? customTone : tone;
     const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
 
+    const sizeMap: Record<string, string> = {
+      curto: 'até 150 palavras',
+      medio: 'entre 150 e 300 palavras',
+      longo: 'entre 300 e 500 palavras',
+    };
+
+    const userPrompt = `Crie um post para redes sociais com as seguintes características:
+- Tema: ${topic}
+- Tom de voz: ${finalTone}
+- Público-alvo: ${audience || 'público geral'}
+- Tamanho: ${sizeMap[size] || size}
+- Redes sociais: ${networks.join(', ')}
+
+Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
+
     try {
-      const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-        body: {
-          theme: topic,
-          tone: finalTone,
-          targetAudience: audience || 'público geral',
-          postSize: size,
-          socialNetworks: networks,
-        },
+      const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts: [{ text: userPrompt }] }],
+          generationConfig: { responseMimeType: 'application/json' },
+        }),
       });
 
-      if (fnError) {
-        throw new Error(fnError.message || 'Erro ao gerar post');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error?.message || `Erro na API Gemini (${response.status})`);
       }
 
-      if (result?.error) {
-        throw new Error(result.error);
-      }
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!content) throw new Error('Resposta vazia da IA');
+
+      const result = JSON.parse(content);
 
       const post: GeneratedPost = {
         id: crypto.randomUUID(),
