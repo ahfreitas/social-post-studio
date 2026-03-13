@@ -58,28 +58,51 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     const finalTone = tone === 'outro' ? customTone : tone;
     const sizeMap: Record<string, string> = { curto: '150', medio: '300', longo: '500' };
 
-    // Simulated generation (replace with AI API call)
-    await new Promise(r => setTimeout(r, 1500));
+    try {
+      const response = await fetch(
+        `https://quxnygeglmdrzukqpmqg.supabase.co/functions/v1/generate-post`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            theme: topic,
+            tone: finalTone,
+            targetAudience: audience || 'público geral',
+            postSize: size,
+            socialNetworks: networks,
+          }),
+        }
+      );
 
-    const mockContent = `📢 ${topic.toUpperCase()}\n\n` +
-      `Este é um post gerado com tom ${finalTone} para ${audience || 'público geral'}.\n\n` +
-      `O conteúdo foi otimizado para ${networks.join(', ')} com até ${sizeMap[size]} palavras.\n\n` +
-      `💡 Dica: Conecte uma API de IA para gerar conteúdo real e personalizado!\n\n` +
-      `#${topic.replace(/\s+/g, '')} #RedesSociais #ContentMarketing`;
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Erro ao gerar post');
+      }
 
-    const post: GeneratedPost = {
-      id: crypto.randomUUID(),
-      topic,
-      tone: finalTone,
-      audience: audience || 'Público geral',
-      size,
-      networks,
-      content: mockContent,
-      createdAt: new Date().toISOString(),
-    };
+      const result = await response.json();
 
-    onGenerate(post);
-    setGenerating(false);
+      const post: GeneratedPost = {
+        id: crypto.randomUUID(),
+        topic,
+        tone: finalTone,
+        audience: audience || 'Público geral',
+        size,
+        networks,
+        content: result.text,
+        hashtags: result.hashtags || [],
+        sources: result.sources || [],
+        trends: result.trends || [],
+        imagePrompt: result.imagePrompt || '',
+        createdAt: new Date().toISOString(),
+      };
+
+      onGenerate(post);
+    } catch (err) {
+      console.error('Erro ao gerar post:', err);
+      alert(err instanceof Error ? err.message : 'Erro ao gerar post');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
