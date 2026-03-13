@@ -118,9 +118,7 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ parts: [{ text: userPrompt }] }],
-          generationConfig: { responseMimeType: 'application/json' },
+          contents: [{ parts: [{ text: SYSTEM_PROMPT + '\n\n' + userPrompt }] }],
         }),
       });
 
