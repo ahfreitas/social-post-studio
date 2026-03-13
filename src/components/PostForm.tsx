@@ -132,7 +132,8 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
 
       if (!content) throw new Error('Resposta vazia da IA');
 
-      const result = JSON.parse(content);
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const result = JSON.parse(cleanContent);
 
       const post: GeneratedPost = {
         id: crypto.randomUUID(),
