@@ -81,7 +81,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
     try {
       const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks },
+        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone },
       });
 
       if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
