@@ -72,7 +72,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic || !tone || !size || networks.length === 0) return;
+    if (!topic || !tone || !size || !language || !imageTone || networks.length === 0) return;
 
     setGenerating(true);
 
