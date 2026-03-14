@@ -164,6 +164,36 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Idioma</Label>
+          <Select value={language} onValueChange={setLanguage} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o idioma" />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map(l => (
+                <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tom da imagem</Label>
+          <Select value={imageTone} onValueChange={setImageTone} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o tom da imagem" />
+            </SelectTrigger>
+            <SelectContent>
+              {IMAGE_TONES.map(it => (
+                <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="audience">Público-alvo (opcional)</Label>
         <Input
