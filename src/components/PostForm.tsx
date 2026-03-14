@@ -202,7 +202,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         type="submit"
         size="lg"
         className="w-full font-display text-base"
-        disabled={generating || !topic || !tone || !size || networks.length === 0}
+        disabled={generating || !topic || !tone || !size || !language || !imageTone || networks.length === 0}
       >
         {generating ? (
           <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Gerando...</>
