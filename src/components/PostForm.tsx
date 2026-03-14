@@ -35,6 +35,22 @@ const NETWORKS = [
   { id: 'twitter', label: 'Twitter/X' },
 ];
 
+const LANGUAGES = [
+  { value: 'portugues', label: 'Português' },
+  { value: 'ingles', label: 'Inglês' },
+  { value: 'espanhol', label: 'Espanhol' },
+  { value: 'alemao', label: 'Alemão' },
+];
+
+const IMAGE_TONES = [
+  { value: 'corporativo', label: 'Corporativo/Profissional' },
+  { value: 'minimalista', label: 'Minimalista' },
+  { value: 'provocador', label: 'Provocador/Irreverente' },
+  { value: 'inspirador', label: 'Inspirador' },
+  { value: 'engracado', label: 'Engraçado' },
+  { value: 'leve', label: 'Leve e Descontraído' },
+];
+
 interface PostFormProps {
   onGenerate: (post: GeneratedPost) => void;
 }
