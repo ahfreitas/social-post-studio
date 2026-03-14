@@ -41,6 +41,8 @@ Calibração por tom:
 - Leve: analogia inteligente que revela algo maior sobre o mundo corporativo
 - Institucional: posicionamento claro, dados sólidos, tom de referência no assunto
 
+REGRA OBRIGATÓRIA DE LINGUAGEM: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
+
 IMPORTANTE: Retorne SEMPRE um JSON válido com esta estrutura exata:
 {"text": "conteúdo do post", "hashtags": ["hashtag1", "hashtag2"], "sources": ["fonte1"], "trends": ["tendência1"], "imagePrompt": "descrição para gerar imagem"}`;
 
@@ -50,7 +52,7 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, audience, size, networks, language, imageTone } = await req.json();
+    const { topic, tone, audience, size, networks, language, imageTone, languageStyle } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -79,13 +81,25 @@ serve(async (req) => {
       leve: "Leve e descontraído: paleta suave, elementos orgânicos, atmosfera relaxada e acolhedora",
     };
 
+    const languageStyleMap: Record<string, string> = {
+      direto: "Direto: frases curtas e objetivas, sem rodeios, vai direto ao ponto",
+      conversacional: "Conversacional: como se estivesse falando com um colega, tom informal e próximo",
+      narrativo: "Narrativo: conta uma história, usa arcos narrativos, cria tensão e resolução",
+      reflexivo: "Reflexivo: convida à introspecção, faz perguntas, provoca pensamento profundo",
+      "tecnico-acessivel": "Técnico acessível: explica conceitos complexos de forma simples, sem simplificar demais",
+      espontaneo: "Espontâneo: fluxo natural de pensamento, como se estivesse digitando em tempo real",
+    };
+
     const userPrompt = `Crie um post para redes sociais com as seguintes características:
 - Tema: ${topic}
 - Tom de voz: ${tone}
+- Estilo de linguagem: ${languageStyleMap[languageStyle] || languageStyle}
 - Público-alvo: ${audience || "público geral"}
 - Tamanho: ${sizeMap[size] || size}
 - Redes sociais: ${networks.join(", ")}
 - Idioma: o post DEVE ser escrito inteiramente em ${languageMap[language] || language}
+
+IMPORTANTE: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
 
 Para o campo "imagePrompt", gere uma descrição DETALHADA de imagem seguindo o tom visual: ${imageToneMap[imageTone] || imageTone}. A descrição deve incluir: estilo visual, paleta de cores, elementos visuais principais, composição e atmosfera da imagem. A descrição do imagePrompt deve ser em inglês para uso em geradores de imagem.
 
@@ -118,7 +132,7 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
                     hashtags: { type: "array", items: { type: "string" } },
                     sources: { type: "array", items: { type: "string" } },
                     trends: { type: "array", items: { type: "string" } },
-                    imagePrompt: { type: "string", description: "Image generation prompt" },
+                    imagePrompt: { type: "string", description: "Detailed image generation prompt in English" },
                   },
                   required: ["text", "hashtags", "sources", "trends", "imagePrompt"],
                   additionalProperties: false,
@@ -156,7 +170,6 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
     if (toolCall?.function?.arguments) {
       result = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: parse content as JSON
       const content = data.choices?.[0]?.message?.content || "";
       const clean = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       result = JSON.parse(clean);

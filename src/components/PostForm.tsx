@@ -49,6 +49,15 @@ const IMAGE_TONES = [
   { value: 'leve', label: 'Leve e Descontraído' },
 ];
 
+const LANGUAGE_STYLES = [
+  { value: 'direto', label: 'Direto' },
+  { value: 'conversacional', label: 'Conversacional' },
+  { value: 'narrativo', label: 'Narrativo' },
+  { value: 'reflexivo', label: 'Reflexivo' },
+  { value: 'tecnico-acessivel', label: 'Técnico acessível' },
+  { value: 'espontaneo', label: 'Espontâneo' },
+];
+
 interface PostFormProps {
   onGenerate: (posts: GeneratedPost[]) => void;
 }
@@ -62,6 +71,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
   const [networks, setNetworks] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [imageTone, setImageTone] = useState('');
+  const [languageStyle, setLanguageStyle] = useState('');
   const [generating, setGenerating] = useState(false);
 
   const toggleNetwork = (id: string) => {
@@ -74,7 +84,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic || !tone || !size || !imageTone || languages.length === 0 || networks.length === 0) return;
+    if (!topic || !tone || !size || !imageTone || !languageStyle || languages.length === 0 || networks.length === 0) return;
 
     setGenerating(true);
     const finalTone = tone === 'outro' ? customTone : tone;
@@ -83,7 +93,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
       const results = await Promise.all(
         languages.map(async (language) => {
           const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone },
+            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle },
           });
 
           if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
@@ -173,6 +183,36 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Estilo de linguagem</Label>
+          <Select value={languageStyle} onValueChange={setLanguageStyle} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o estilo" />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGE_STYLES.map(ls => (
+                <SelectItem key={ls.value} value={ls.value}>{ls.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tom da imagem</Label>
+          <Select value={imageTone} onValueChange={setImageTone} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o tom da imagem" />
+            </SelectTrigger>
+            <SelectContent>
+              {IMAGE_TONES.map(it => (
+                <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-3">
         <Label>Idiomas</Label>
         <div className="flex flex-wrap gap-3">
@@ -194,20 +234,6 @@ export default function PostForm({ onGenerate }: PostFormProps) {
             </label>
           ))}
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Tom da imagem</Label>
-        <Select value={imageTone} onValueChange={setImageTone} required>
-          <SelectTrigger className="bg-secondary border-border">
-            <SelectValue placeholder="Selecione o tom da imagem" />
-          </SelectTrigger>
-          <SelectContent>
-            {IMAGE_TONES.map(it => (
-              <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="space-y-2">
@@ -248,7 +274,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         type="submit"
         size="lg"
         className="w-full font-display text-base"
-        disabled={generating || !topic || !tone || !size || !imageTone || languages.length === 0 || networks.length === 0}
+        disabled={generating || !topic || !tone || !size || !imageTone || !languageStyle || languages.length === 0 || networks.length === 0}
       >
         {generating ? (
           <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Gerando...</>
