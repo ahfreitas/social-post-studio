@@ -7,12 +7,12 @@ import type { GeneratedPost } from '@/types/post';
 
 export default function Dashboard() {
   const [posts, setPosts] = useState<GeneratedPost[]>([]);
-  const [selectedPost, setSelectedPost] = useState<GeneratedPost | null>(null);
+  const [selectedPosts, setSelectedPosts] = useState<GeneratedPost[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleGenerate = (post: GeneratedPost) => {
-    setPosts(prev => [post, ...prev]);
-    setSelectedPost(post);
+  const handleGenerate = (newPosts: GeneratedPost[]) => {
+    setPosts(prev => [...newPosts, ...prev]);
+    setSelectedPosts(newPosts);
   };
 
   return (
@@ -26,8 +26,8 @@ export default function Dashboard() {
       }`}>
         <HistorySidebar
           posts={posts}
-          selectedId={selectedPost?.id ?? null}
-          onSelect={(post) => { setSelectedPost(post); setSidebarOpen(false); }}
+          selectedId={selectedPosts[0]?.id ?? null}
+          onSelect={(post) => { setSelectedPosts([post]); setSidebarOpen(false); }}
         />
       </aside>
 
@@ -46,7 +46,9 @@ export default function Dashboard() {
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           <div className="mx-auto max-w-2xl">
             <PostForm onGenerate={handleGenerate} />
-            {selectedPost && <PostResult post={selectedPost} />}
+            {selectedPosts.map(post => (
+              <PostResult key={post.id} post={post} />
+            ))}
           </div>
         </main>
       </div>

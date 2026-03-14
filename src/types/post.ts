@@ -5,6 +5,7 @@ export interface GeneratedPost {
   audience: string;
   size: string;
   networks: string[];
+  language: string;
   content: string;
   hashtags: string[];
   sources: string[];
