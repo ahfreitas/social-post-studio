@@ -35,6 +35,22 @@ const NETWORKS = [
   { id: 'twitter', label: 'Twitter/X' },
 ];
 
+const LANGUAGES = [
+  { value: 'portugues', label: 'Português' },
+  { value: 'ingles', label: 'Inglês' },
+  { value: 'espanhol', label: 'Espanhol' },
+  { value: 'alemao', label: 'Alemão' },
+];
+
+const IMAGE_TONES = [
+  { value: 'corporativo', label: 'Corporativo/Profissional' },
+  { value: 'minimalista', label: 'Minimalista' },
+  { value: 'provocador', label: 'Provocador/Irreverente' },
+  { value: 'inspirador', label: 'Inspirador' },
+  { value: 'engracado', label: 'Engraçado' },
+  { value: 'leve', label: 'Leve e Descontraído' },
+];
+
 interface PostFormProps {
   onGenerate: (post: GeneratedPost) => void;
 }
@@ -46,6 +62,8 @@ export default function PostForm({ onGenerate }: PostFormProps) {
   const [audience, setAudience] = useState('');
   const [size, setSize] = useState('');
   const [networks, setNetworks] = useState<string[]>([]);
+  const [language, setLanguage] = useState('');
+  const [imageTone, setImageTone] = useState('');
   const [generating, setGenerating] = useState(false);
 
   const toggleNetwork = (id: string) => {
@@ -54,7 +72,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic || !tone || !size || networks.length === 0) return;
+    if (!topic || !tone || !size || !language || !imageTone || networks.length === 0) return;
 
     setGenerating(true);
 
@@ -63,7 +81,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
     try {
       const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks },
+        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone },
       });
 
       if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
@@ -146,6 +164,36 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Idioma</Label>
+          <Select value={language} onValueChange={setLanguage} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o idioma" />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map(l => (
+                <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tom da imagem</Label>
+          <Select value={imageTone} onValueChange={setImageTone} required>
+            <SelectTrigger className="bg-secondary border-border">
+              <SelectValue placeholder="Selecione o tom da imagem" />
+            </SelectTrigger>
+            <SelectContent>
+              {IMAGE_TONES.map(it => (
+                <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="audience">Público-alvo (opcional)</Label>
         <Input
@@ -184,7 +232,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         type="submit"
         size="lg"
         className="w-full font-display text-base"
-        disabled={generating || !topic || !tone || !size || networks.length === 0}
+        disabled={generating || !topic || !tone || !size || !language || !imageTone || networks.length === 0}
       >
         {generating ? (
           <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Gerando...</>

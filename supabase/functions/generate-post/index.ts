@@ -50,7 +50,7 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, audience, size, networks } = await req.json();
+    const { topic, tone, audience, size, networks, language, imageTone } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -63,12 +63,31 @@ serve(async (req) => {
       longo: "entre 300 e 500 palavras",
     };
 
+    const languageMap: Record<string, string> = {
+      portugues: "Português brasileiro",
+      ingles: "Inglês",
+      espanhol: "Espanhol",
+      alemao: "Alemão",
+    };
+
+    const imageToneMap: Record<string, string> = {
+      corporativo: "Corporativo e profissional: tons sóbrios, layout limpo, tipografia elegante, elementos de negócios",
+      minimalista: "Minimalista: poucos elementos, muito espaço em branco, cores neutras, simplicidade visual",
+      provocador: "Provocador e irreverente: cores vibrantes, contrastes fortes, composição ousada e disruptiva",
+      inspirador: "Inspirador: tons quentes, luz natural, paisagens ou cenas motivacionais, composição harmoniosa",
+      engracado: "Engraçado: cores vivas, elementos lúdicos, ilustrações divertidas, tom descontraído",
+      leve: "Leve e descontraído: paleta suave, elementos orgânicos, atmosfera relaxada e acolhedora",
+    };
+
     const userPrompt = `Crie um post para redes sociais com as seguintes características:
 - Tema: ${topic}
 - Tom de voz: ${tone}
 - Público-alvo: ${audience || "público geral"}
 - Tamanho: ${sizeMap[size] || size}
 - Redes sociais: ${networks.join(", ")}
+- Idioma: o post DEVE ser escrito inteiramente em ${languageMap[language] || language}
+
+Para o campo "imagePrompt", gere uma descrição DETALHADA de imagem seguindo o tom visual: ${imageToneMap[imageTone] || imageTone}. A descrição deve incluir: estilo visual, paleta de cores, elementos visuais principais, composição e atmosfera da imagem. A descrição do imagePrompt deve ser em inglês para uso em geradores de imagem.
 
 Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
 
