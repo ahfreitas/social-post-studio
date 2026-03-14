@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, ImageIcon } from 'lucide-react';
 import type { GeneratedPost } from '@/types/post';
 
 export default function PostResult({ post }: { post: GeneratedPost }) {
   const [copied, setCopied] = useState(false);
+  const [imageCopied, setImageCopied] = useState(false);
 
   const fullContent = [
     post.content,
@@ -16,6 +17,12 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
     await navigator.clipboard.writeText(fullContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyImage = async () => {
+    await navigator.clipboard.writeText(post.imagePrompt);
+    setImageCopied(true);
+    setTimeout(() => setImageCopied(false), 2000);
   };
 
   return (
@@ -43,6 +50,23 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
                 {tag.startsWith('#') ? tag : `#${tag}`}
               </span>
             ))}
+          </div>
+        )}
+
+        {post.imagePrompt && (
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-primary" />
+                <p className="text-sm font-semibold text-primary">Sugestão de Imagem</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleCopyImage} className="h-7 text-xs">
+                {imageCopied ? <><Check className="mr-1 h-3 w-3" /> Copiado</> : <><Copy className="mr-1 h-3 w-3" /> Copiar</>}
+              </Button>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              {post.imagePrompt}
+            </p>
           </div>
         )}
 
