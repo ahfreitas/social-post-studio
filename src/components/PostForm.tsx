@@ -61,21 +61,6 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     const finalTone = tone === 'outro' ? customTone : tone;
 
 
-    const sizeMap: Record<string, string> = {
-      curto: 'até 150 palavras',
-      medio: 'entre 150 e 300 palavras',
-      longo: 'entre 300 e 500 palavras',
-    };
-
-    const userPrompt = `Crie um post para redes sociais com as seguintes características:
-- Tema: ${topic}
-- Tom de voz: ${finalTone}
-- Público-alvo: ${audience || 'público geral'}
-- Tamanho: ${sizeMap[size] || size}
-- Redes sociais: ${networks.join(', ')}
-
-Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
-
     try {
       const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
         body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks },
