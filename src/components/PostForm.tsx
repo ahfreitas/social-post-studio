@@ -9,8 +9,6 @@ import { Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { GeneratedPost } from '@/types/post';
 
-// System prompt moved to edge function
-
 const TONES = [
   { value: 'inspirador', label: 'Inspirador' },
   { value: 'tecnico', label: 'Técnico' },
@@ -52,7 +50,7 @@ const IMAGE_TONES = [
 ];
 
 interface PostFormProps {
-  onGenerate: (post: GeneratedPost) => void;
+  onGenerate: (posts: GeneratedPost[]) => void;
 }
 
 export default function PostForm({ onGenerate }: PostFormProps) {
@@ -62,7 +60,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
   const [audience, setAudience] = useState('');
   const [size, setSize] = useState('');
   const [networks, setNetworks] = useState<string[]>([]);
-  const [language, setLanguage] = useState('');
+  const [languages, setLanguages] = useState<string[]>([]);
   const [imageTone, setImageTone] = useState('');
   const [generating, setGenerating] = useState(false);
 
@@ -70,39 +68,50 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     setNetworks(prev => prev.includes(id) ? prev.filter(n => n !== id) : [...prev, id]);
   };
 
+  const toggleLanguage = (id: string) => {
+    setLanguages(prev => prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]);
+  };
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic || !tone || !size || !language || !imageTone || networks.length === 0) return;
+    if (!topic || !tone || !size || !imageTone || languages.length === 0 || networks.length === 0) return;
 
     setGenerating(true);
-
     const finalTone = tone === 'outro' ? customTone : tone;
 
-
     try {
-      const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone },
-      });
+      const results = await Promise.all(
+        languages.map(async (language) => {
+          const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
+            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone },
+          });
 
-      if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
-      if (result?.error) throw new Error(result.error);
+          if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
+          if (result?.error) throw new Error(result.error);
 
-      const post: GeneratedPost = {
-        id: crypto.randomUUID(),
-        topic,
-        tone: finalTone,
-        audience: audience || 'Público geral',
-        size,
-        networks,
-        content: result.text,
-        hashtags: result.hashtags || [],
-        sources: result.sources || [],
-        trends: result.trends || [],
-        imagePrompt: result.imagePrompt || '',
-        createdAt: new Date().toISOString(),
-      };
+          const langLabel = LANGUAGES.find(l => l.value === language)?.label || language;
 
-      onGenerate(post);
+          const post: GeneratedPost = {
+            id: crypto.randomUUID(),
+            topic,
+            tone: finalTone,
+            audience: audience || 'Público geral',
+            size,
+            networks,
+            language: langLabel,
+            content: result.text,
+            hashtags: result.hashtags || [],
+            sources: result.sources || [],
+            trends: result.trends || [],
+            imagePrompt: result.imagePrompt || '',
+            createdAt: new Date().toISOString(),
+          };
+
+          return post;
+        })
+      );
+
+      onGenerate(results);
     } catch (err) {
       console.error('Erro ao gerar post:', err);
       alert(err instanceof Error ? err.message : 'Erro ao gerar post');
@@ -164,34 +173,41 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Idioma</Label>
-          <Select value={language} onValueChange={setLanguage} required>
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder="Selecione o idioma" />
-            </SelectTrigger>
-            <SelectContent>
-              {LANGUAGES.map(l => (
-                <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="space-y-3">
+        <Label>Idiomas</Label>
+        <div className="flex flex-wrap gap-3">
+          {LANGUAGES.map(lang => (
+            <label
+              key={lang.value}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 cursor-pointer transition-all ${
+                languages.includes(lang.value)
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-secondary text-muted-foreground hover:border-muted-foreground'
+              }`}
+            >
+              <Checkbox
+                checked={languages.includes(lang.value)}
+                onCheckedChange={() => toggleLanguage(lang.value)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <span className="text-sm font-medium">{lang.label}</span>
+            </label>
+          ))}
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label>Tom da imagem</Label>
-          <Select value={imageTone} onValueChange={setImageTone} required>
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder="Selecione o tom da imagem" />
-            </SelectTrigger>
-            <SelectContent>
-              {IMAGE_TONES.map(it => (
-                <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>Tom da imagem</Label>
+        <Select value={imageTone} onValueChange={setImageTone} required>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder="Selecione o tom da imagem" />
+          </SelectTrigger>
+          <SelectContent>
+            {IMAGE_TONES.map(it => (
+              <SelectItem key={it.value} value={it.value}>{it.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
@@ -232,7 +248,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
         type="submit"
         size="lg"
         className="w-full font-display text-base"
-        disabled={generating || !topic || !tone || !size || !language || !imageTone || networks.length === 0}
+        disabled={generating || !topic || !tone || !size || !imageTone || languages.length === 0 || networks.length === 0}
       >
         {generating ? (
           <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Gerando...</>

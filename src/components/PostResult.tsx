@@ -21,7 +21,12 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
   return (
     <Card className="border-border bg-card mt-6">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="font-display text-lg">Post Gerado</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="font-display text-lg">Post Gerado</CardTitle>
+          <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
+            {post.language}
+          </span>
+        </div>
         <Button variant="outline" size="sm" onClick={handleCopy}>
           {copied ? <><Check className="mr-1 h-4 w-4" /> Copiado</> : <><Copy className="mr-1 h-4 w-4" /> Copiar</>}
         </Button>
