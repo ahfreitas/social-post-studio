@@ -62,6 +62,8 @@ export default function PostForm({ onGenerate }: PostFormProps) {
   const [audience, setAudience] = useState('');
   const [size, setSize] = useState('');
   const [networks, setNetworks] = useState<string[]>([]);
+  const [language, setLanguage] = useState('');
+  const [imageTone, setImageTone] = useState('');
   const [generating, setGenerating] = useState(false);
 
   const toggleNetwork = (id: string) => {
