@@ -77,28 +77,12 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
 
     try {
-      const response = await fetch(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ parts: [{ text: userPrompt }] }],
-          generationConfig: { responseMimeType: 'application/json' },
-        }),
+      const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
+        body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData?.error?.message || `Erro na API Gemini (${response.status})`);
-      }
-
-      const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!content) throw new Error('Resposta vazia da IA');
-
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const result = JSON.parse(cleanContent);
+      if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
+      if (result?.error) throw new Error(result.error);
 
       const post: GeneratedPost = {
         id: crypto.randomUUID(),
