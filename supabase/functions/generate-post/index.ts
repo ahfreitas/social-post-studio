@@ -128,7 +128,7 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
               type: "function",
               function: {
                 name: "generate_post",
-                description: "Generate a social media post with hashtags, sources, trends and image prompt",
+                description: "Generate a social media post with hashtags, sources, trends, image prompt and quality score",
                 parameters: {
                   type: "object",
                   properties: {
@@ -137,8 +137,25 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
                     sources: { type: "array", items: { type: "string" } },
                     trends: { type: "array", items: { type: "string" } },
                     imagePrompt: { type: "string", description: "Detailed image generation prompt in English" },
+                    score: {
+                      type: "object",
+                      description: "Quality score for the generated post",
+                      properties: {
+                        clarity: { type: "number", description: "Clareza: o leitor entende a mensagem principal em menos de 10 segundos? (0-10)" },
+                        engagement: { type: "number", description: "Potencial de engajamento: provoca comentários, compartilhamentos ou identificação? (0-10)" },
+                        authenticity: { type: "number", description: "Autenticidade: soa como uma pessoa real falando, não como IA ou artigo corporativo? (0-10)" },
+                        provocation: { type: "number", description: "Provocação: desafia uma crença ou padrão estabelecido sem atacar o leitor? (0-10)" },
+                        claritySuggestion: { type: "string", description: "Sugestão de melhoria para clareza" },
+                        engagementSuggestion: { type: "string", description: "Sugestão de melhoria para engajamento" },
+                        authenticitySuggestion: { type: "string", description: "Sugestão de melhoria para autenticidade" },
+                        provocationSuggestion: { type: "string", description: "Sugestão de melhoria para provocação" },
+                        overallDiagnosis: { type: "string", description: "Mensagem curta de diagnóstico geral do post" },
+                      },
+                      required: ["clarity", "engagement", "authenticity", "provocation", "claritySuggestion", "engagementSuggestion", "authenticitySuggestion", "provocationSuggestion", "overallDiagnosis"],
+                      additionalProperties: false,
+                    },
                   },
-                  required: ["text", "hashtags", "sources", "trends", "imagePrompt"],
+                  required: ["text", "hashtags", "sources", "trends", "imagePrompt", "score"],
                   additionalProperties: false,
                 },
               },
