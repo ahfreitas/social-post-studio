@@ -107,7 +107,16 @@ IMPORTANTE: Evite completamente jargões e expressões típicas de IA como: merg
 
 Para o campo "imagePrompt", gere uma descrição DETALHADA de imagem seguindo o tom visual: ${imageToneMap[imageTone] || imageTone}. A descrição deve incluir: estilo visual, paleta de cores, elementos visuais principais, composição e atmosfera da imagem. A descrição do imagePrompt deve ser em inglês para uso em geradores de imagem.
 
-Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
+AVALIAÇÃO DO POST (campo "score"): Avalie o post que você acabou de gerar em 4 critérios, cada um de 0 a 10:
+1. clarity — o leitor entende a mensagem principal em menos de 10 segundos?
+2. engagement — provoca comentários, compartilhamentos ou identificação?
+3. authenticity — soa como uma pessoa real falando, não como IA ou artigo corporativo?
+4. provocation — desafia uma crença ou padrão estabelecido sem atacar o leitor?
+Para cada critério, inclua uma sugestão concreta de melhoria (claritySuggestion, engagementSuggestion, authenticitySuggestion, provocationSuggestion).
+Inclua também um overallDiagnosis: uma frase curta de diagnóstico geral. Exemplos: "Post forte, pronto para publicar.", "Bom conteúdo, mas o início pode ser mais impactante.", "Revise o tom — está soando muito técnico."
+Seja honesto e crítico na avaliação — não dê notas altas por padrão.
+
+Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "...", "score": {"clarity": N, "engagement": N, "authenticity": N, "provocation": N, "claritySuggestion": "...", "engagementSuggestion": "...", "authenticitySuggestion": "...", "provocationSuggestion": "...", "overallDiagnosis": "..."}}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -128,7 +137,7 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
               type: "function",
               function: {
                 name: "generate_post",
-                description: "Generate a social media post with hashtags, sources, trends and image prompt",
+                description: "Generate a social media post with hashtags, sources, trends, image prompt and quality score",
                 parameters: {
                   type: "object",
                   properties: {
@@ -137,8 +146,25 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
                     sources: { type: "array", items: { type: "string" } },
                     trends: { type: "array", items: { type: "string" } },
                     imagePrompt: { type: "string", description: "Detailed image generation prompt in English" },
+                    score: {
+                      type: "object",
+                      description: "Quality score for the generated post",
+                      properties: {
+                        clarity: { type: "number", description: "Clareza: o leitor entende a mensagem principal em menos de 10 segundos? (0-10)" },
+                        engagement: { type: "number", description: "Potencial de engajamento: provoca comentários, compartilhamentos ou identificação? (0-10)" },
+                        authenticity: { type: "number", description: "Autenticidade: soa como uma pessoa real falando, não como IA ou artigo corporativo? (0-10)" },
+                        provocation: { type: "number", description: "Provocação: desafia uma crença ou padrão estabelecido sem atacar o leitor? (0-10)" },
+                        claritySuggestion: { type: "string", description: "Sugestão de melhoria para clareza" },
+                        engagementSuggestion: { type: "string", description: "Sugestão de melhoria para engajamento" },
+                        authenticitySuggestion: { type: "string", description: "Sugestão de melhoria para autenticidade" },
+                        provocationSuggestion: { type: "string", description: "Sugestão de melhoria para provocação" },
+                        overallDiagnosis: { type: "string", description: "Mensagem curta de diagnóstico geral do post" },
+                      },
+                      required: ["clarity", "engagement", "authenticity", "provocation", "claritySuggestion", "engagementSuggestion", "authenticitySuggestion", "provocationSuggestion", "overallDiagnosis"],
+                      additionalProperties: false,
+                    },
                   },
-                  required: ["text", "hashtags", "sources", "trends", "imagePrompt"],
+                  required: ["text", "hashtags", "sources", "trends", "imagePrompt", "score"],
                   additionalProperties: false,
                 },
               },

@@ -114,6 +114,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
             sources: result.sources || [],
             trends: result.trends || [],
             imagePrompt: result.imagePrompt || '',
+            score: result.score || undefined,
             createdAt: new Date().toISOString(),
           };
 
