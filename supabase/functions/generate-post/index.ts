@@ -107,7 +107,16 @@ IMPORTANTE: Evite completamente jargões e expressões típicas de IA como: merg
 
 Para o campo "imagePrompt", gere uma descrição DETALHADA de imagem seguindo o tom visual: ${imageToneMap[imageTone] || imageTone}. A descrição deve incluir: estilo visual, paleta de cores, elementos visuais principais, composição e atmosfera da imagem. A descrição do imagePrompt deve ser em inglês para uso em geradores de imagem.
 
-Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "..."}`;
+AVALIAÇÃO DO POST (campo "score"): Avalie o post que você acabou de gerar em 4 critérios, cada um de 0 a 10:
+1. clarity — o leitor entende a mensagem principal em menos de 10 segundos?
+2. engagement — provoca comentários, compartilhamentos ou identificação?
+3. authenticity — soa como uma pessoa real falando, não como IA ou artigo corporativo?
+4. provocation — desafia uma crença ou padrão estabelecido sem atacar o leitor?
+Para cada critério, inclua uma sugestão concreta de melhoria (claritySuggestion, engagementSuggestion, authenticitySuggestion, provocationSuggestion).
+Inclua também um overallDiagnosis: uma frase curta de diagnóstico geral. Exemplos: "Post forte, pronto para publicar.", "Bom conteúdo, mas o início pode ser mais impactante.", "Revise o tom — está soando muito técnico."
+Seja honesto e crítico na avaliação — não dê notas altas por padrão.
+
+Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "sources": ["..."], "trends": ["..."], "imagePrompt": "...", "score": {"clarity": N, "engagement": N, "authenticity": N, "provocation": N, "claritySuggestion": "...", "engagementSuggestion": "...", "authenticitySuggestion": "...", "provocationSuggestion": "...", "overallDiagnosis": "..."}}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
