@@ -5,17 +5,60 @@ import PostScore from '@/components/PostScore';
 import HistorySidebar from '@/components/HistorySidebar';
 import { Menu, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import type { GeneratedPost } from '@/types/post';
+import type { GeneratedPost, PostScore as PostScoreType } from '@/types/post';
 
 export default function Dashboard() {
   const [posts, setPosts] = useState<GeneratedPost[]>([]);
   const [selectedPosts, setSelectedPosts] = useState<GeneratedPost[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [generatingVariation, setGeneratingVariation] = useState<string | null>(null);
+  const [reevaluating, setReevaluating] = useState<string | null>(null);
+  const [editedContents, setEditedContents] = useState<Record<string, string>>({});
+  const [previousScores, setPreviousScores] = useState<Record<string, PostScoreType>>({});
+  const [showCongrats, setShowCongrats] = useState<Record<string, boolean>>({});
 
   const handleGenerate = (newPosts: GeneratedPost[]) => {
     setPosts(prev => [...newPosts, ...prev]);
     setSelectedPosts(newPosts);
+  };
+
+  const handleContentChange = (postId: string, newContent: string) => {
+    setEditedContents(prev => ({ ...prev, [postId]: newContent }));
+  };
+
+  const handleReevaluate = async (post: GeneratedPost) => {
+    setReevaluating(post.id);
+    try {
+      const currentContent = editedContents[post.id] ?? post.content;
+
+      const { data: result, error } = await supabase.functions.invoke('reevaluate-post', {
+        body: { text: currentContent },
+      });
+
+      if (error) throw new Error(error.message);
+      if (result?.error) throw new Error(result.error);
+
+      const newScore: PostScoreType = result;
+      const oldScore = post.score;
+
+      if (oldScore) {
+        setPreviousScores(prev => ({ ...prev, [post.id]: oldScore }));
+        const oldOverall = (oldScore.clarity + oldScore.engagement + oldScore.authenticity + oldScore.provocation) / 4;
+        const newOverall = (newScore.clarity + newScore.engagement + newScore.authenticity + newScore.provocation) / 4;
+        setShowCongrats(prev => ({ ...prev, [post.id]: newOverall > oldOverall }));
+      }
+
+      const updatePost = (p: GeneratedPost) =>
+        p.id === post.id ? { ...p, score: newScore, content: currentContent } : p;
+
+      setPosts(prev => prev.map(updatePost));
+      setSelectedPosts(prev => prev.map(updatePost));
+    } catch (err) {
+      console.error('Erro ao reavaliar:', err);
+      alert(err instanceof Error ? err.message : 'Erro ao reavaliar post');
+    } finally {
+      setReevaluating(null);
+    }
   };
 
   const handleGenerateVariation = async (post: GeneratedPost) => {
@@ -97,12 +140,19 @@ export default function Dashboard() {
             <PostForm onGenerate={handleGenerate} />
             {selectedPosts.map(post => (
               <div key={post.id}>
-                <PostResult post={post} />
+                <PostResult
+                  post={post}
+                  onContentChange={handleContentChange}
+                />
                 {post.score && (
                   <PostScore
                     score={post.score}
+                    previousScore={previousScores[post.id]}
                     onGenerateVariation={() => handleGenerateVariation(post)}
+                    onReevaluate={() => handleReevaluate(post)}
                     isGenerating={generatingVariation === post.id}
+                    isReevaluating={reevaluating === post.id}
+                    showCongrats={showCongrats[post.id]}
                   />
                 )}
               </div>

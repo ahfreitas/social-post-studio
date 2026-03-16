@@ -2,14 +2,21 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Copy, Check, ImageIcon } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import type { GeneratedPost } from '@/types/post';
 
-export default function PostResult({ post }: { post: GeneratedPost }) {
+interface PostResultProps {
+  post: GeneratedPost;
+  onContentChange?: (postId: string, newContent: string) => void;
+}
+
+export default function PostResult({ post, onContentChange }: PostResultProps) {
   const [copied, setCopied] = useState(false);
   const [imageCopied, setImageCopied] = useState(false);
+  const [editedContent, setEditedContent] = useState(post.content);
 
   const fullContent = [
-    post.content,
+    editedContent,
     post.hashtags?.length ? '\n\n' + post.hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ') : '',
   ].join('');
 
@@ -23,6 +30,11 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
     await navigator.clipboard.writeText(post.imagePrompt);
     setImageCopied(true);
     setTimeout(() => setImageCopied(false), 2000);
+  };
+
+  const handleContentChange = (value: string) => {
+    setEditedContent(value);
+    onContentChange?.(post.id, value);
   };
 
   return (
@@ -39,9 +51,12 @@ export default function PostResult({ post }: { post: GeneratedPost }) {
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-lg bg-secondary p-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-          {post.content}
-        </div>
+        <Textarea
+          value={editedContent}
+          onChange={(e) => handleContentChange(e.target.value)}
+          className="min-h-[120px] resize-y bg-secondary border-none text-sm leading-relaxed text-foreground focus-visible:ring-primary"
+          rows={Math.max(5, editedContent.split('\n').length + 1)}
+        />
 
         {post.hashtags?.length > 0 && (
           <div className="flex flex-wrap gap-2">
