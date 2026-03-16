@@ -80,6 +80,17 @@ export default function Dashboard() {
       if (error) throw new Error(error.message);
       if (result?.error) throw new Error(result.error);
 
+      // Handle nested JSON in text field
+      let textContent = result.text || '';
+      if (typeof textContent === 'string' && textContent.trimStart().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(textContent);
+          textContent = parsed.text || textContent;
+        } catch {
+          // Not valid JSON, use as-is
+        }
+      }
+
       const variation: GeneratedPost = {
         id: crypto.randomUUID(),
         topic: post.topic,
@@ -88,7 +99,7 @@ export default function Dashboard() {
         size: post.size,
         networks: post.networks,
         language: post.language,
-        content: result.text,
+        content: textContent,
         hashtags: result.hashtags || [],
         sources: result.sources || [],
         trends: result.trends || [],

@@ -99,6 +99,17 @@ export default function PostForm({ onGenerate }: PostFormProps) {
           if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
           if (result?.error) throw new Error(result.error);
 
+          // Handle nested JSON: AI sometimes returns JSON string inside the text field
+          let textContent = result.text || '';
+          if (typeof textContent === 'string' && textContent.trimStart().startsWith('{')) {
+            try {
+              const parsed = JSON.parse(textContent);
+              textContent = parsed.text || textContent;
+            } catch {
+              // Not valid JSON, use as-is
+            }
+          }
+
           const langLabel = LANGUAGES.find(l => l.value === language)?.label || language;
 
           const post: GeneratedPost = {
@@ -109,7 +120,7 @@ export default function PostForm({ onGenerate }: PostFormProps) {
             size,
             networks,
             language: langLabel,
-            content: result.text,
+            content: textContent,
             hashtags: result.hashtags || [],
             sources: result.sources || [],
             trends: result.trends || [],
