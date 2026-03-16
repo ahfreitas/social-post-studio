@@ -43,6 +43,8 @@ Calibração por tom:
 
 REGRA OBRIGATÓRIA DE LINGUAGEM: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
 
+REGRA DE VOZ E INÍCIO DO POST: Alterne e mescle estas abordagens de forma natural ao longo do post: (1) primeira pessoa com vivência real — frases como "penso que", "em minha experiência", "tenho visto isso acontecer", "aprendi da forma mais difícil que"; (2) cena concreta — dia, hora, situação específica que o leitor reconhece; (3) observação inesperada que quebra uma expectativa. O post deve soar como alguém que viveu aquilo contando para um amigo inteligente — com autoridade, mas sem distância. Nunca soe como um artigo acadêmico ou post corporativo. A primeira pessoa deve aparecer pelo menos uma vez no post, preferencialmente no início ou na virada do texto.
+
 IMPORTANTE: Retorne SEMPRE um JSON válido com esta estrutura exata:
 {"text": "conteúdo do post", "hashtags": ["hashtag1", "hashtag2"], "sources": ["fonte1"], "trends": ["tendência1"], "imagePrompt": "descrição para gerar imagem"}`;
 
