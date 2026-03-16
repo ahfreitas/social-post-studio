@@ -45,6 +45,8 @@ REGRA OBRIGATÓRIA DE LINGUAGEM: Evite completamente jargões e expressões típ
 
 REGRA DE VOZ E INÍCIO DO POST: Alterne e mescle estas abordagens de forma natural ao longo do post: (1) primeira pessoa com vivência real — frases como "penso que", "em minha experiência", "tenho visto isso acontecer", "aprendi da forma mais difícil que"; (2) cena concreta — dia, hora, situação específica que o leitor reconhece; (3) observação inesperada que quebra uma expectativa. O post deve soar como alguém que viveu aquilo contando para um amigo inteligente — com autoridade, mas sem distância. Nunca soe como um artigo acadêmico ou post corporativo. A primeira pessoa deve aparecer pelo menos uma vez no post, preferencialmente no início ou na virada do texto.
 
+REGRA DE ABERTURA: NUNCA comece o post com perguntas retóricas genéricas como "Você já parou para pensar...", "Você sabia que...", "E se eu te dissesse que...". Essas aberturas são clichês que entregam que foi uma IA que escreveu. Comece sempre com uma das seguintes: (1) uma cena específica e concreta — "Sexta-feira, 18h. Sala lotada."; (2) uma afirmação em primeira pessoa surpreendente — "Aprendi da pior forma que..."; (3) uma observação direta que quebra uma expectativa — "A maioria das empresas investe em IA para fazer mais do mesmo, só que mais rápido."
+
 IMPORTANTE: Retorne SEMPRE um JSON válido com esta estrutura exata:
 {"text": "conteúdo do post", "hashtags": ["hashtag1", "hashtag2"], "sources": ["fonte1"], "trends": ["tendência1"], "imagePrompt": "descrição para gerar imagem"}`;
 
