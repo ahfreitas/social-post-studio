@@ -19,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/hooks" element={<HookLibrary />} />
+          <Route path="/meus-posts" element={<MyPosts />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
