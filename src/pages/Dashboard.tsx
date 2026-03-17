@@ -4,7 +4,7 @@ import PostResult from '@/components/PostResult';
 import PostScore from '@/components/PostScore';
 import HistorySidebar from '@/components/HistorySidebar';
 import { Menu, X } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type { GeneratedPost, PostScore as PostScoreType } from '@/types/post';
 
 export default function Dashboard() {
