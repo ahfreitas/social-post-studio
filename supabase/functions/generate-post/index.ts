@@ -56,7 +56,7 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, audience, size, networks, language, imageTone, languageStyle } = await req.json();
+    const { topic, tone, audience, size, networks, language, imageTone, languageStyle, hook } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
