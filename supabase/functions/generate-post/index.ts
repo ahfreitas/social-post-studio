@@ -94,6 +94,10 @@ serve(async (req) => {
       espontaneo: "Espontâneo: fluxo natural de pensamento, como se estivesse digitando em tempo real",
     };
 
+    const hookInstruction = hook
+      ? `\n\nABERTURA OBRIGATÓRIA: O post DEVE começar exatamente com esta frase: "${hook}". Continue o post a partir dela de forma natural e coerente.`
+      : '';
+
     const userPrompt = `Crie um post para redes sociais com as seguintes características:
 - Tema: ${topic}
 - Tom de voz: ${tone}
@@ -101,7 +105,7 @@ serve(async (req) => {
 - Público-alvo: ${audience || "público geral"}
 - Tamanho: ${sizeMap[size] || size}
 - Redes sociais: ${networks.join(", ")}
-- Idioma: o post DEVE ser escrito inteiramente em ${languageMap[language] || language}
+- Idioma: o post DEVE ser escrito inteiramente em ${languageMap[language] || language}${hookInstruction}
 
 IMPORTANTE: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
 
