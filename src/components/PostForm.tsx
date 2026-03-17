@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getHooks } from '@/lib/hooks-store';
 import type { GeneratedPost } from '@/types/post';
 
 const TONES = [
@@ -58,6 +59,8 @@ const LANGUAGE_STYLES = [
   { value: 'espontaneo', label: 'Espontâneo' },
 ];
 
+const NO_HOOK = '__none__';
+
 interface PostFormProps {
   onGenerate: (posts: GeneratedPost[]) => void;
 }
@@ -72,7 +75,10 @@ export default function PostForm({ onGenerate }: PostFormProps) {
   const [languages, setLanguages] = useState<string[]>([]);
   const [imageTone, setImageTone] = useState('');
   const [languageStyle, setLanguageStyle] = useState('');
+  const [selectedHook, setSelectedHook] = useState(NO_HOOK);
   const [generating, setGenerating] = useState(false);
+
+  const hooks = getHooks();
 
   const toggleNetwork = (id: string) => {
     setNetworks(prev => prev.includes(id) ? prev.filter(n => n !== id) : [...prev, id]);
@@ -88,26 +94,24 @@ export default function PostForm({ onGenerate }: PostFormProps) {
 
     setGenerating(true);
     const finalTone = tone === 'outro' ? customTone : tone;
+    const hookText = selectedHook !== NO_HOOK ? hooks.find(h => h.id === selectedHook)?.text : undefined;
 
     try {
       const results = await Promise.all(
         languages.map(async (language) => {
           const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle },
+            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle, hook: hookText },
           });
 
           if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
           if (result?.error) throw new Error(result.error);
 
-          // Handle nested JSON: AI sometimes returns JSON string inside the text field
           let textContent = result.text || '';
           if (typeof textContent === 'string' && textContent.trimStart().startsWith('{')) {
             try {
               const parsed = JSON.parse(textContent);
               textContent = parsed.text || textContent;
-            } catch {
-              // Not valid JSON, use as-is
-            }
+            } catch {}
           }
 
           const langLabel = LANGUAGES.find(l => l.value === language)?.label || language;
@@ -223,6 +227,24 @@ export default function PostForm({ onGenerate }: PostFormProps) {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      {/* Hook selector */}
+      <div className="space-y-2">
+        <Label>Usar hook como abertura (opcional)</Label>
+        <Select value={selectedHook} onValueChange={setSelectedHook}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder="Selecione um hook" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_HOOK}>Nenhum — deixar a IA escolher</SelectItem>
+            {hooks.map(h => (
+              <SelectItem key={h.id} value={h.id}>
+                {h.text.length > 70 ? h.text.slice(0, 70) + '…' : h.text}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-3">
