@@ -1,5 +1,5 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Zap, BookOpen } from 'lucide-react';
+import { Clock, Zap, BookOpen, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { GeneratedPost } from '@/types/post';
 
@@ -19,7 +19,14 @@ export default function HistorySidebar({ posts, selectedId, onSelect }: HistoryS
         <h2 className="font-display text-lg font-semibold text-sidebar-accent-foreground">PostGen</h2>
       </div>
 
-      <div className="px-2 py-3">
+      <div className="px-2 py-3 space-y-1">
+        <button
+          onClick={() => navigate('/meus-posts')}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        >
+          <FileText className="h-4 w-4 text-primary" />
+          Meus Posts
+        </button>
         <button
           onClick={() => navigate('/hooks')}
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
