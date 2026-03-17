@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      saved_posts: {
+        Row: {
+          audience: string | null
+          comments: number | null
+          content: string
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          image_prompt: string | null
+          language: string
+          language_style: string | null
+          likes: number | null
+          networks: string[] | null
+          score_authenticity: number | null
+          score_clarity: number | null
+          score_diagnosis: string | null
+          score_engagement: number | null
+          score_overall: number | null
+          score_provocation: number | null
+          size: string | null
+          sources: string[] | null
+          tone: string
+          topic: string
+          trends: string[] | null
+        }
+        Insert: {
+          audience?: string | null
+          comments?: number | null
+          content: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_prompt?: string | null
+          language: string
+          language_style?: string | null
+          likes?: number | null
+          networks?: string[] | null
+          score_authenticity?: number | null
+          score_clarity?: number | null
+          score_diagnosis?: string | null
+          score_engagement?: number | null
+          score_overall?: number | null
+          score_provocation?: number | null
+          size?: string | null
+          sources?: string[] | null
+          tone: string
+          topic: string
+          trends?: string[] | null
+        }
+        Update: {
+          audience?: string | null
+          comments?: number | null
+          content?: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_prompt?: string | null
+          language?: string
+          language_style?: string | null
+          likes?: number | null
+          networks?: string[] | null
+          score_authenticity?: number | null
+          score_clarity?: number | null
+          score_diagnosis?: string | null
+          score_engagement?: number | null
+          score_overall?: number | null
+          score_provocation?: number | null
+          size?: string | null
+          sources?: string[] | null
+          tone?: string
+          topic?: string
+          trends?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
