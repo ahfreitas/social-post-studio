@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/Dashboard";
 import HookLibrary from "./pages/HookLibrary";
+import MyPosts from "./pages/MyPosts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
