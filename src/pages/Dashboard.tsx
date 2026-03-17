@@ -137,6 +137,7 @@ export default function Dashboard() {
 
       setPosts(prev => [variation, ...prev]);
       setSelectedPosts(prev => [...prev, variation]);
+      savePost(variation);
     } catch (err) {
       console.error('Erro ao gerar variação:', err);
       alert(err instanceof Error ? err.message : 'Erro ao gerar variação');
