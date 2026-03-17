@@ -20,6 +20,33 @@ export default function Dashboard() {
   const handleGenerate = (newPosts: GeneratedPost[]) => {
     setPosts(prev => [...newPosts, ...prev]);
     setSelectedPosts(newPosts);
+    // Auto-save to database
+    newPosts.forEach(post => savePost(post));
+  };
+
+  const savePost = async (post: GeneratedPost) => {
+    const scoreOverall = post.score
+      ? (post.score.clarity + post.score.engagement + post.score.authenticity + post.score.provocation) / 4
+      : 0;
+    await supabase.from('saved_posts').insert({
+      content: post.content,
+      hashtags: post.hashtags,
+      tone: post.tone,
+      language: post.language,
+      networks: post.networks,
+      topic: post.topic,
+      audience: post.audience,
+      size: post.size,
+      image_prompt: post.imagePrompt,
+      sources: post.sources,
+      trends: post.trends,
+      score_clarity: post.score?.clarity || 0,
+      score_engagement: post.score?.engagement || 0,
+      score_authenticity: post.score?.authenticity || 0,
+      score_provocation: post.score?.provocation || 0,
+      score_overall: scoreOverall,
+      score_diagnosis: post.score?.overallDiagnosis || '',
+    } as never);
   };
 
   const handleContentChange = (postId: string, newContent: string) => {
