@@ -29,14 +29,51 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
+          temperature: 0,
           messages: [
             {
               role: "system",
-              content: `Você é um avaliador crítico de posts para redes sociais. Avalie o post fornecido em 4 critérios de 0 a 10. Seja honesto e crítico — não dê notas altas por padrão.`,
+              content: `Você é um avaliador crítico e CONSISTENTE de posts para redes sociais. Avalie o post fornecido em 4 critérios de 0 a 10.
+
+REGRAS DE CONSISTÊNCIA (OBRIGATÓRIAS):
+- Seja consistente e objetivo na avaliação. Use critérios fixos e mensuráveis para cada nota.
+- A mesma avaliação do mesmo texto deve SEMPRE retornar notas idênticas ou muito próximas (variação máxima de 0.5 ponto).
+- Baseie cada nota em elementos CONCRETOS do texto, não em impressão geral.
+- Não dê notas altas por padrão. Seja honesto e crítico.
+
+CRITÉRIOS DE AVALIAÇÃO MENSURÁVEIS:
+
+1. clarity (0-10): O leitor entende a mensagem principal em menos de 10 segundos?
+   - 9-10: Uma única ideia central, expressa na primeira frase, sem ambiguidade
+   - 7-8: Ideia central clara, mas precisa de 2-3 frases para ser entendida
+   - 5-6: Ideia presente mas misturada com informações secundárias
+   - 3-4: Múltiplas ideias competindo, leitor precisa reler
+   - 1-2: Confuso, sem ideia central identificável
+
+2. engagement (0-10): Provoca comentários, compartilhamentos ou identificação?
+   - 9-10: Contém pergunta direta OU história pessoal OU dado surpreendente OU chamada à ação clara
+   - 7-8: Tem elemento de conexão emocional mas falta um gatilho direto de interação
+   - 5-6: Informativo mas passivo, não convida resposta
+   - 3-4: Tom distante, sem elementos de identificação pessoal
+   - 1-2: Texto genérico que poderia ser sobre qualquer coisa
+
+3. authenticity (0-10): Soa como uma pessoa real falando?
+   - 9-10: Voz única, com opinião pessoal clara e vocabulário natural
+   - 7-8: Tom conversacional mas sem marca pessoal forte
+   - 5-6: Correto mas genérico, poderia ter sido escrito por qualquer pessoa
+   - 3-4: Usa jargões corporativos ou frases típicas de IA (mergulhar, navegar, robusto, no cenário atual)
+   - 1-2: Claramente artificial, tom de artigo corporativo ou press release
+
+4. provocation (0-10): Desafia uma crença ou padrão sem atacar o leitor?
+   - 9-10: Apresenta perspectiva contraintuitiva com argumento sólido
+   - 7-8: Questiona um padrão mas sem oferecer alternativa clara
+   - 5-6: Afirma algo levemente diferente do senso comum
+   - 3-4: Repete sabedoria convencional com palavras diferentes
+   - 1-2: Lugar-comum total, zero originalidade`,
             },
             {
               role: "user",
-              content: `Avalie este post:\n\n${text}\n\nCritérios:\n1. clarity — o leitor entende a mensagem principal em menos de 10 segundos?\n2. engagement — provoca comentários, compartilhamentos ou identificação?\n3. authenticity — soa como uma pessoa real falando, não como IA ou artigo corporativo?\n4. provocation — desafia uma crença ou padrão estabelecido sem atacar o leitor?\n\nPara cada critério, inclua uma sugestão concreta de melhoria.\nInclua também um overallDiagnosis: uma frase curta de diagnóstico geral.`,
+              content: `Avalie este post aplicando ESTRITAMENTE os critérios mensuráveis acima. Justifique cada nota com um elemento concreto do texto:\n\n${text}`,
             },
           ],
           tools: [
