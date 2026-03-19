@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_posts: {
+        Row: {
+          content: string | null
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          image_prompt: string | null
+          language: string
+          language_style: string
+          networks: string[]
+          scheduled_date: string
+          score_authenticity: number | null
+          score_clarity: number | null
+          score_diagnosis: string | null
+          score_engagement: number | null
+          score_overall: number | null
+          score_provocation: number | null
+          series_id: string | null
+          series_order: number | null
+          size: string
+          status: string
+          tone: string
+          topic: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_prompt?: string | null
+          language: string
+          language_style?: string
+          networks?: string[]
+          scheduled_date: string
+          score_authenticity?: number | null
+          score_clarity?: number | null
+          score_diagnosis?: string | null
+          score_engagement?: number | null
+          score_overall?: number | null
+          score_provocation?: number | null
+          series_id?: string | null
+          series_order?: number | null
+          size?: string
+          status?: string
+          tone: string
+          topic: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_prompt?: string | null
+          language?: string
+          language_style?: string
+          networks?: string[]
+          scheduled_date?: string
+          score_authenticity?: number | null
+          score_clarity?: number | null
+          score_diagnosis?: string | null
+          score_engagement?: number | null
+          score_overall?: number | null
+          score_provocation?: number | null
+          series_id?: string | null
+          series_order?: number | null
+          size?: string
+          status?: string
+          tone?: string
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_posts_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "post_series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_series: {
+        Row: {
+          created_at: string
+          id: string
+          language: string
+          language_style: string
+          networks: string[]
+          post_count: number
+          size: string
+          tone: string
+          topic: string
+          weekdays: number[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language: string
+          language_style?: string
+          networks?: string[]
+          post_count?: number
+          size?: string
+          tone: string
+          topic: string
+          weekdays?: number[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string
+          language_style?: string
+          networks?: string[]
+          post_count?: number
+          size?: string
+          tone?: string
+          topic?: string
+          weekdays?: number[]
+        }
+        Relationships: []
+      }
       saved_posts: {
         Row: {
           audience: string | null
