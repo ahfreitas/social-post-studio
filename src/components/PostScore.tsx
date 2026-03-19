@@ -43,10 +43,10 @@ function ScoreDelta({ current, previous }: { current: number; previous: number }
 interface PostScoreProps {
   score: PostScoreType;
   previousScore?: PostScoreType;
-  onGenerateVariation: () => void;
-  onReevaluate: () => void;
-  isGenerating: boolean;
-  isReevaluating: boolean;
+  onGenerateVariation?: () => void;
+  onReevaluate?: () => void;
+  isGenerating?: boolean;
+  isReevaluating?: boolean;
   showCongrats?: boolean;
 }
 

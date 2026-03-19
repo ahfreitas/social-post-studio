@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/Dashboard";
 import HookLibrary from "./pages/HookLibrary";
 import MyPosts from "./pages/MyPosts";
+import Repurpose from "./pages/Repurpose";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Dashboard />} />
           <Route path="/hooks" element={<HookLibrary />} />
           <Route path="/meus-posts" element={<MyPosts />} />
+          <Route path="/repurpose" element={<Repurpose />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
