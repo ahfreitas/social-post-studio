@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/Dashboard";
 import HookLibrary from "./pages/HookLibrary";
 import MyPosts from "./pages/MyPosts";
+import Repurpose from "./pages/Repurpose";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

@@ -10,7 +10,7 @@ import { RefreshCw, Loader2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import PostResult from '@/components/PostResult';
 import PostScore from '@/components/PostScore';
-import NavLink from '@/components/NavLink';
+import { NavLink } from '@/components/NavLink';
 import type { GeneratedPost, PostScore as PostScoreType } from '@/types/post';
 
 const TONES = [
