@@ -1,5 +1,5 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Zap, BookOpen, FileText } from 'lucide-react';
+import { Clock, Zap, BookOpen, FileText, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { GeneratedPost } from '@/types/post';
 
