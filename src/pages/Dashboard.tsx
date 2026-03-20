@@ -92,6 +92,8 @@ export default function Dashboard() {
   const handleGenerateVariation = async (post: GeneratedPost) => {
     setGeneratingVariation(post.id);
     try {
+      const activeProfile = getActiveProfile();
+      const profileData = buildProfileForEdgeFunction(activeProfile);
       const { data: result, error } = await supabase.functions.invoke('generate-post', {
         body: {
           topic: post.topic,
@@ -102,6 +104,7 @@ export default function Dashboard() {
           language: post.language === 'Português' ? 'portugues' : post.language === 'Inglês' ? 'ingles' : post.language === 'Espanhol' ? 'espanhol' : 'alemao',
           imageTone: 'corporativo',
           languageStyle: 'direto',
+          profile: profileData,
         },
       });
 

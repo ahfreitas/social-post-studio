@@ -74,8 +74,10 @@ export default function Repurpose() {
 
     setGenerating(true);
     try {
+      const activeProfile = getActiveProfile();
+      const profileData = buildProfileForEdgeFunction(activeProfile);
       const { data, error } = await supabase.functions.invoke('repurpose-post', {
-        body: { originalText, tone, languageStyle, language, networks, size, audience },
+        body: { originalText, tone, languageStyle, language, networks, size, audience, profile: profileData },
       });
 
       if (error) throw new Error(error.message);
