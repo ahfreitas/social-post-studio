@@ -8,6 +8,7 @@ import HookLibrary from "./pages/HookLibrary";
 import MyPosts from "./pages/MyPosts";
 import Repurpose from "./pages/Repurpose";
 import Calendar from "./pages/Calendar";
+import Profiles from "./pages/Profiles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
