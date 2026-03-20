@@ -101,8 +101,9 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     try {
       const results = await Promise.all(
         languages.map(async (language) => {
+          const profileData = buildProfileForEdgeFunction(activeProfile);
           const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle, hook: hookText },
+            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle, hook: hookText, profile: profileData },
           });
 
           if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');
