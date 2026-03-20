@@ -6,49 +6,44 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é André Freitas — especialista em transformação digital, business agility e mudança cultural com mais de 15 anos de experiência em grandes empresas brasileiras como CVC Corp, Hospital Albert Einstein, Livelo, C&A e Alelo.
+function buildSystemPrompt(profile: any): string {
+  const parts: string[] = [];
 
-Sua voz é direta, provocadora e às vezes irônica — mas sua ironia vem de quem já viveu isso na pele, não de quem julga de fora. Você provoca com empatia: o leitor deve se sentir identificado com o problema, não atacado por ele.
+  parts.push(`Você é ${profile.name} — ${profile.bio}`);
 
-COMO ANDRÉ ENXERGA O MUNDO CORPORATIVO:
-- No nível operacional: times altamente ocupados, fazendo mais com menos, seguindo planos rígidos, preenchendo status reports — mas sem saber ao certo qual problema estão resolvendo
-- No nível tático: altamente pressionado entre o executivo que quer certeza e o time que está perdido, sendo o para-raios de duas forças opostas
-- No nível executivo: decisões tomadas no achômetro, sem métricas, sem entender o que o cliente realmente valoriza, sem experimentos — mas exigindo tiros exatos e detestando demonstrar insegurança
-- O padrão que se repete: empresas que preferem controle a aprendizado, que confundem governança rígida com resultado, que falam em foco no cliente mas raramente saem da sala para ouvi-lo
-- A ironia central: quanto mais processo, menos clareza. Quanto mais ocupados, menos entrega de valor real.
+  if (profile.worldview) {
+    parts.push(`\nCOMO ${profile.name.toUpperCase()} ENXERGA O MUNDO:\n${profile.worldview}`);
+  }
 
-Seus temas recorrentes:
-- Transformação digital que vai além da TI
-- Business Agility e Flight Levels na prática
-- OKRs que funcionam de verdade (não os de PowerPoint)
-- Mudança cultural como pré-requisito de qualquer transformação
-- Governança ágil em escala
-- Fit for Purpose: entregar o que o cliente valoriza, não o que é mais fácil de medir
+  if (profile.recurringTopics) {
+    parts.push(`\nTemas recorrentes:\n${profile.recurringTopics}`);
+  }
 
-Seu estilo:
-- Começa com uma cena ou situação concreta que o leitor reconhece imediatamente
-- O alvo da ironia é sempre o sistema ou o padrão, nunca a pessoa
-- Usa exemplos do mundo real, nunca genéricos
-- O leitor sai pensando ou questionando, nunca se defendendo
-- Termina com uma reflexão genuína ou pergunta que convida ao diálogo
-- Emojis com moderação — só quando reforçam, nunca para enfeitar
+  if (profile.communicationStyle) {
+    parts.push(`\nEstilo de comunicação:\n${profile.communicationStyle}`);
+  }
 
-Calibração por tom:
-- Provocativo: expõe um padrão que todos vivem mas ninguém nomeia
-- Inspirador: história real ou dado surpreendente que muda perspectiva
-- Técnico: aprofunda um conceito com exemplos práticos e sem jargão vazio
-- Autêntico: bastidor real de uma transformação, com o que deu certo E o que não deu
-- Leve: analogia inteligente que revela algo maior sobre o mundo corporativo
-- Institucional: posicionamento claro, dados sólidos, tom de referência no assunto
+  if (profile.toneCalibration) {
+    parts.push(`\nCalibração por tom:\n${profile.toneCalibration}`);
+  }
 
-REGRA OBRIGATÓRIA DE LINGUAGEM: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
+  if (profile.languageRules) {
+    parts.push(`\nREGRA OBRIGATÓRIA DE LINGUAGEM: ${profile.languageRules}`);
+  }
 
-REGRA DE VOZ E INÍCIO DO POST: Alterne e mescle estas abordagens de forma natural ao longo do post: (1) primeira pessoa com vivência real — frases como "penso que", "em minha experiência", "tenho visto isso acontecer", "aprendi da forma mais difícil que"; (2) cena concreta — dia, hora, situação específica que o leitor reconhece; (3) observação inesperada que quebra uma expectativa. O post deve soar como alguém que viveu aquilo contando para um amigo inteligente — com autoridade, mas sem distância. Nunca soe como um artigo acadêmico ou post corporativo. A primeira pessoa deve aparecer pelo menos uma vez no post, preferencialmente no início ou na virada do texto.
+  if (profile.openingRules) {
+    parts.push(`\nREGRA DE ABERTURA: ${profile.openingRules}`);
+  }
 
-REGRA DE ABERTURA: NUNCA comece o post com perguntas retóricas genéricas como "Você já parou para pensar...", "Você sabia que...", "E se eu te dissesse que...". Essas aberturas são clichês que entregam que foi uma IA que escreveu. Comece sempre com uma das seguintes: (1) uma cena específica e concreta — "Sexta-feira, 18h. Sala lotada."; (2) uma afirmação em primeira pessoa surpreendente — "Aprendi da pior forma que..."; (3) uma observação direta que quebra uma expectativa — "A maioria das empresas investe em IA para fazer mais do mesmo, só que mais rápido."
+  if (profile.referenceExamples) {
+    parts.push(`\nExemplos de posts de referência:\n${profile.referenceExamples}`);
+  }
 
-IMPORTANTE: Retorne SEMPRE um JSON válido com esta estrutura exata:
-{"text": "conteúdo do post", "hashtags": ["hashtag1", "hashtag2"], "sources": ["fonte1"], "trends": ["tendência1"], "imagePrompt": "descrição para gerar imagem"}`;
+  parts.push(`\nIMPORTANTE: Retorne SEMPRE um JSON válido com esta estrutura exata:
+{"text": "conteúdo do post", "hashtags": ["hashtag1", "hashtag2"], "sources": ["fonte1"], "trends": ["tendência1"], "imagePrompt": "descrição para gerar imagem"}`);
+
+  return parts.join('\n');
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -56,12 +51,14 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, tone, audience, size, networks, language, imageTone, languageStyle, hook } = await req.json();
+    const { topic, tone, audience, size, networks, language, imageTone, languageStyle, hook, profile } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
+
+    const systemPrompt = profile ? buildSystemPrompt(profile) : "Você é um especialista em criação de conteúdo para redes sociais. Retorne SEMPRE um JSON válido.";
 
     const sizeMap: Record<string, string> = {
       curto: "até 150 palavras",
@@ -107,8 +104,6 @@ serve(async (req) => {
 - Redes sociais: ${networks.join(", ")}
 - Idioma: o post DEVE ser escrito inteiramente em ${languageMap[language] || language}${hookInstruction}
 
-IMPORTANTE: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
-
 Para o campo "imagePrompt", gere uma descrição DETALHADA de imagem seguindo o tom visual: ${imageToneMap[imageTone] || imageTone}. A descrição deve incluir: estilo visual, paleta de cores, elementos visuais principais, composição e atmosfera da imagem. A descrição do imagePrompt deve ser em inglês para uso em geradores de imagem.
 
 AVALIAÇÃO DO POST (campo "score"): Avalie o post que você acabou de gerar em 4 critérios, cada um de 0 a 10. Seja consistente e objetivo — use critérios fixos e mensuráveis. Baseie cada nota em elementos CONCRETOS do texto, não em impressão geral.
@@ -134,7 +129,7 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
           tools: [
@@ -155,15 +150,15 @@ Retorne APENAS o JSON válido no formato: {"text": "...", "hashtags": ["..."], "
                       type: "object",
                       description: "Quality score for the generated post",
                       properties: {
-                        clarity: { type: "number", description: "Clareza: o leitor entende a mensagem principal em menos de 10 segundos? (0-10)" },
-                        engagement: { type: "number", description: "Potencial de engajamento: provoca comentários, compartilhamentos ou identificação? (0-10)" },
-                        authenticity: { type: "number", description: "Autenticidade: soa como uma pessoa real falando, não como IA ou artigo corporativo? (0-10)" },
-                        provocation: { type: "number", description: "Provocação: desafia uma crença ou padrão estabelecido sem atacar o leitor? (0-10)" },
-                        claritySuggestion: { type: "string", description: "Sugestão de melhoria para clareza" },
-                        engagementSuggestion: { type: "string", description: "Sugestão de melhoria para engajamento" },
-                        authenticitySuggestion: { type: "string", description: "Sugestão de melhoria para autenticidade" },
-                        provocationSuggestion: { type: "string", description: "Sugestão de melhoria para provocação" },
-                        overallDiagnosis: { type: "string", description: "Mensagem curta de diagnóstico geral do post" },
+                        clarity: { type: "number" },
+                        engagement: { type: "number" },
+                        authenticity: { type: "number" },
+                        provocation: { type: "number" },
+                        claritySuggestion: { type: "string" },
+                        engagementSuggestion: { type: "string" },
+                        authenticitySuggestion: { type: "string" },
+                        provocationSuggestion: { type: "string" },
+                        overallDiagnosis: { type: "string" },
                       },
                       required: ["clarity", "engagement", "authenticity", "provocation", "claritySuggestion", "engagementSuggestion", "authenticitySuggestion", "provocationSuggestion", "overallDiagnosis"],
                       additionalProperties: false,

@@ -6,17 +6,25 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é André Freitas — especialista em transformação digital, business agility e mudança cultural com mais de 15 anos de experiência em grandes empresas brasileiras.
+function buildSystemPrompt(profile: any): string {
+  const parts: string[] = [];
 
-Você receberá um post original. Reescreva-o completamente com a voz de André Freitas, mantendo a essência e a mensagem central, mas adaptando para o novo tom, estilo, idioma e rede social especificados. Não traduza literalmente — reescreva como se André estivesse contando a mesma história do zero para aquela plataforma e audiência específica.
+  parts.push(`Você é ${profile.name} — ${profile.bio}`);
+  parts.push(`\nVocê receberá um post original. Reescreva-o completamente com a voz de ${profile.name}, mantendo a essência e a mensagem central, mas adaptando para o novo tom, estilo, idioma e rede social especificados. Não traduza literalmente — reescreva como se ${profile.name} estivesse contando a mesma história do zero para aquela plataforma e audiência específica.`);
 
-Sua voz é direta, provocadora e às vezes irônica — mas sua ironia vem de quem já viveu isso na pele. Você provoca com empatia.
+  if (profile.communicationStyle) {
+    parts.push(`\nEstilo de comunicação:\n${profile.communicationStyle}`);
+  }
+  if (profile.languageRules) {
+    parts.push(`\nREGRA OBRIGATÓRIA DE LINGUAGEM: ${profile.languageRules}`);
+  }
+  if (profile.openingRules) {
+    parts.push(`\nREGRA DE ABERTURA: ${profile.openingRules}`);
+  }
 
-REGRA OBRIGATÓRIA DE LINGUAGEM: Evite completamente jargões e expressões típicas de IA como: mergulhar, navegar, robusto, no cenário atual, é fundamental, em um mundo onde, vale ressaltar, cada vez mais. Escreva de forma humana, natural e autêntica.
-
-REGRA DE ABERTURA: NUNCA comece com perguntas retóricas genéricas como "Você já parou para pensar...", "Você sabia que...", "E se eu te dissesse que...".
-
-IMPORTANTE: Retorne SEMPRE um JSON válido.`;
+  parts.push(`\nIMPORTANTE: Retorne SEMPRE um JSON válido.`);
+  return parts.join('\n');
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -24,10 +32,12 @@ serve(async (req) => {
   }
 
   try {
-    const { originalText, tone, languageStyle, language, networks, size, audience } = await req.json();
+    const { originalText, tone, languageStyle, language, networks, size, audience, profile } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const systemPrompt = profile ? buildSystemPrompt(profile) : "Você é um especialista em criação de conteúdo para redes sociais. Retorne SEMPRE um JSON válido.";
 
     const sizeMap: Record<string, string> = {
       curto: "até 150 palavras",
@@ -51,6 +61,8 @@ serve(async (req) => {
       espontaneo: "Espontâneo: fluxo natural de pensamento",
     };
 
+    const profileName = profile?.name || "o autor";
+
     const userPrompt = `POST ORIGINAL para reescrever:
 """
 ${originalText}
@@ -64,7 +76,7 @@ Reescreva este post completamente com as seguintes configurações:
 - Tamanho: ${sizeMap[size] || size}
 - Público-alvo: ${audience || "público geral"}
 
-NÃO traduza literalmente. Reescreva como se André estivesse contando a mesma história do zero para essa plataforma e audiência.
+NÃO traduza literalmente. Reescreva como se ${profileName} estivesse contando a mesma história do zero para essa plataforma e audiência.
 
 AVALIAÇÃO DO POST (campo "score"): Avalie o post reescrito em 4 critérios (0-10). Seja consistente e objetivo.
 1. clarity: 9-10 = ideia central na primeira frase; 7-8 = clara em 2-3 frases; 5-6 = misturada; 3-4 = múltiplas ideias; 1-2 = confuso.
@@ -86,7 +98,7 @@ Retorne APENAS JSON válido no formato: {"text": "...", "hashtags": ["..."], "so
         model: "google/gemini-2.5-flash",
         temperature: 0.7,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         tools: [
