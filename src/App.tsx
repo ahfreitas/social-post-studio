@@ -25,6 +25,7 @@ const App = () => (
           <Route path="/meus-posts" element={<MyPosts />} />
           <Route path="/repurpose" element={<Repurpose />} />
           <Route path="/calendario" element={<Calendar />} />
+          <Route path="/perfis" element={<Profiles />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

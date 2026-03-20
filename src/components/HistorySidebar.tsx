@@ -48,6 +48,13 @@ export default function HistorySidebar({ posts, selectedId, onSelect }: HistoryS
           <CalendarDays className="h-4 w-4 text-primary" />
           Calendário
         </button>
+        <button
+          onClick={() => navigate('/perfis')}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        >
+          <User className="h-4 w-4 text-primary" />
+          Perfis
+        </button>
       </div>
 
       <div className="px-4 py-1">
