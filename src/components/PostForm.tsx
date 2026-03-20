@@ -67,15 +67,16 @@ interface PostFormProps {
 }
 
 export default function PostForm({ onGenerate }: PostFormProps) {
+  const activeProfile = getActiveProfile();
   const [topic, setTopic] = useState('');
-  const [tone, setTone] = useState('');
+  const [tone, setTone] = useState(activeProfile.defaultTone || '');
   const [customTone, setCustomTone] = useState('');
   const [audience, setAudience] = useState('');
   const [size, setSize] = useState('');
   const [networks, setNetworks] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [imageTone, setImageTone] = useState('');
-  const [languageStyle, setLanguageStyle] = useState('');
+  const [languageStyle, setLanguageStyle] = useState(activeProfile.defaultLanguageStyle || '');
   const [selectedHook, setSelectedHook] = useState(NO_HOOK);
   const [generating, setGenerating] = useState(false);
 
