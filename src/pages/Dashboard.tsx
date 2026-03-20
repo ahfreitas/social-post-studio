@@ -5,6 +5,7 @@ import PostScore from '@/components/PostScore';
 import HistorySidebar from '@/components/HistorySidebar';
 import { Menu, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveProfile, buildProfileForEdgeFunction } from '@/lib/profiles-store';
 import type { GeneratedPost, PostScore as PostScoreType } from '@/types/post';
 
 export default function Dashboard() {
@@ -91,6 +92,8 @@ export default function Dashboard() {
   const handleGenerateVariation = async (post: GeneratedPost) => {
     setGeneratingVariation(post.id);
     try {
+      const activeProfile = getActiveProfile();
+      const profileData = buildProfileForEdgeFunction(activeProfile);
       const { data: result, error } = await supabase.functions.invoke('generate-post', {
         body: {
           topic: post.topic,
@@ -101,6 +104,7 @@ export default function Dashboard() {
           language: post.language === 'Português' ? 'portugues' : post.language === 'Inglês' ? 'ingles' : post.language === 'Espanhol' ? 'espanhol' : 'alemao',
           imageTone: 'corporativo',
           languageStyle: 'direto',
+          profile: profileData,
         },
       });
 

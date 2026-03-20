@@ -8,6 +8,7 @@ import HookLibrary from "./pages/HookLibrary";
 import MyPosts from "./pages/MyPosts";
 import Repurpose from "./pages/Repurpose";
 import Calendar from "./pages/Calendar";
+import Profiles from "./pages/Profiles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/meus-posts" element={<MyPosts />} />
           <Route path="/repurpose" element={<Repurpose />} />
           <Route path="/calendario" element={<Calendar />} />
+          <Route path="/perfis" element={<Profiles />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

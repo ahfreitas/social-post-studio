@@ -1,5 +1,5 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, Zap, BookOpen, FileText, RefreshCw, CalendarDays } from 'lucide-react';
+import { Clock, Zap, BookOpen, FileText, RefreshCw, CalendarDays, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { GeneratedPost } from '@/types/post';
 
@@ -47,6 +47,13 @@ export default function HistorySidebar({ posts, selectedId, onSelect }: HistoryS
         >
           <CalendarDays className="h-4 w-4 text-primary" />
           Calendário
+        </button>
+        <button
+          onClick={() => navigate('/perfis')}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        >
+          <User className="h-4 w-4 text-primary" />
+          Perfis
         </button>
       </div>
 

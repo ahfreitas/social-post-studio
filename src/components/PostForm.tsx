@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getHooks } from '@/lib/hooks-store';
+import { getActiveProfile, buildProfileForEdgeFunction } from '@/lib/profiles-store';
 import type { GeneratedPost } from '@/types/post';
 
 const TONES = [
@@ -66,15 +67,16 @@ interface PostFormProps {
 }
 
 export default function PostForm({ onGenerate }: PostFormProps) {
+  const activeProfile = getActiveProfile();
   const [topic, setTopic] = useState('');
-  const [tone, setTone] = useState('');
+  const [tone, setTone] = useState(activeProfile.defaultTone || '');
   const [customTone, setCustomTone] = useState('');
   const [audience, setAudience] = useState('');
   const [size, setSize] = useState('');
   const [networks, setNetworks] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [imageTone, setImageTone] = useState('');
-  const [languageStyle, setLanguageStyle] = useState('');
+  const [languageStyle, setLanguageStyle] = useState(activeProfile.defaultLanguageStyle || '');
   const [selectedHook, setSelectedHook] = useState(NO_HOOK);
   const [generating, setGenerating] = useState(false);
 
@@ -99,8 +101,9 @@ export default function PostForm({ onGenerate }: PostFormProps) {
     try {
       const results = await Promise.all(
         languages.map(async (language) => {
+          const profileData = buildProfileForEdgeFunction(activeProfile);
           const { data: result, error: fnError } = await supabase.functions.invoke('generate-post', {
-            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle, hook: hookText },
+            body: { topic, tone: finalTone, audience: audience || 'público geral', size, networks, language, imageTone, languageStyle, hook: hookText, profile: profileData },
           });
 
           if (fnError) throw new Error(fnError.message || 'Erro ao gerar post');

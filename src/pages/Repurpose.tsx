@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Loader2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveProfile, buildProfileForEdgeFunction } from '@/lib/profiles-store';
 import PostResult from '@/components/PostResult';
 import PostScore from '@/components/PostScore';
 import { NavLink } from '@/components/NavLink';
@@ -73,8 +74,10 @@ export default function Repurpose() {
 
     setGenerating(true);
     try {
+      const activeProfile = getActiveProfile();
+      const profileData = buildProfileForEdgeFunction(activeProfile);
       const { data, error } = await supabase.functions.invoke('repurpose-post', {
-        body: { originalText, tone, languageStyle, language, networks, size, audience },
+        body: { originalText, tone, languageStyle, language, networks, size, audience, profile: profileData },
       });
 
       if (error) throw new Error(error.message);
