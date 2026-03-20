@@ -5,6 +5,7 @@ import PostScore from '@/components/PostScore';
 import HistorySidebar from '@/components/HistorySidebar';
 import { Menu, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveProfile, buildProfileForEdgeFunction } from '@/lib/profiles-store';
 import type { GeneratedPost, PostScore as PostScoreType } from '@/types/post';
 
 export default function Dashboard() {
