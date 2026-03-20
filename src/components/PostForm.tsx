@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getHooks } from '@/lib/hooks-store';
+import { getActiveProfile, buildProfileForEdgeFunction } from '@/lib/profiles-store';
 import type { GeneratedPost } from '@/types/post';
 
 const TONES = [
